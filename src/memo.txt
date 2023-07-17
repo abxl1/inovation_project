@@ -1,0 +1,276 @@
+    ★ 로그인
+    요약하면, 캐시는 웹 페이지를 저장하여 다시 다운로드하지 않고 빠르게 로드하는 데 사용되는 임시 저장소입니다. 
+    쿠키는 사용자의 브라우저에 저장되는 작은 데이터 조각으로, 사용자를 식별하고 사용자의 선호도나 상태 정보를 저장하는 데 사용됩니다.
+
+    토큰을 꺼내서 쿠키에 저장한다!!!!!!!!!알겠냐~~~~~!!!!어린양들아~~~~!!!!!!!
+    
+
+    1. axios 써서 하기 => 근데 우리가 서버 주소를 일일이 다 관리하기가 귀찮단 말이죠 300개가 넘는다 생각하믄...
+    끔찍 그래서 instance 쓰면 편안.ㅎㅎ
+  
+   const [email, setEmail] = useState('');
+   const [pw, setPw] = useState('');
+
+    const LoginSubmitHandler = async (event) => {
+    event.preventDefault();
+    try {
+      const res = await axios.post("localhost:4000/todos/", {
+        ”email” : “email@gmail.com”,
+        ”password” : “password”
+        ”latitude” : 10,
+        ”longitude” : 20,
+      });
+    console.log("로그인 성공");
+        } catch (error) {
+        console.log("로그인 실패");
+        console.log(error.message);
+        }
+    };
+
+      console.log(res); => console찍어서 값이 들어오는지 꼭 확인하기!! 
+      
+      console.log(res.headers.accesstoken) => accesstoken을 꺼내서 쿠키에 저장!!
+      쿠키는 검사페이지 들어가서 애플리케이션 들어가면 로컬 스토리지 밑에 쿠키 저장소 볼 수 있어요 거기서 accesstoken값 들어오는지 확인해보면 됩니다!!
+
+      // accesstoken을 꺼내서 쿠키에 저장 <- 해야함
+      (순서는 서버 통신에 성공했다는 전제!!!! : 200번대 200, 201, 202 이건 백에서 설정함)
+      document.cookie = `accessToken=${res.headers.accesstoken}; path=/;` // 
+      쿠키설정(생성,수정)하는코드
+
+document.cookie: 웹 페이지에서 현재 사용 중인 브라우저의 쿠키를 나타내는 JavaScript의 특수 변수(객체)입니다.
+
+accessToken=${res.headers.accesstoken}: 쿠키의 내용을 설정합니다. 여기서 res.headers.accesstoken은 res라는 변수의 headers 객체에 있는 accesstoken이라는 속성의 값을 가져와서 쿠키의 값으로 사용하겠다는 뜻입니다.
+${}는 템플릿 리터럴을 사용하여 변수를 쉽게 문자열에 삽입하는 방법입니다.
+
+path=/: 쿠키의 경로를 설정합니다. 이 경우, / 경로에서만 해당 쿠키를 사용할 수 있도록 지정되었습니다. 이 경로 설정을 통해 해당 경로와 그 하위 경로에서 쿠키를 사용할 수 있습니다.
+
+이 코드는 accessToken이라는 이름의 쿠키를 생성하고, 해당 쿠키의 값은 res.headers.accesstoken 변수의 값을 가집니다. 이렇게 생성된 쿠키는 사이트의 모든 페이지에서 사용 가능하며, 경로가 /로 설정되어 있으므로 사이트 전체에서 쿠키에 접근할 수 있습니다.
+
+
+
+      => path : 해당 페이지 모든 페이지 접근할 수 있다는 뜻입니다!(우리가 로그인하면 모든 페이지에 접근을 할 수 있어야겠죠?! 약소쿠라고 생각하믄댐ㅎㅎ)
+
+      
+★ 회원가입
+const createOnclick = async (event) => {
+  if ( pw1 !== pw1* ) {
+		alert('비밀번호가 일치하지 않습니다.');
+  }
+    event.preventDefault();
+    try {
+      const res = await instance.post("/api/user/signup",
+        nickname : ,
+        password:,
+        email:,
+      });
+      console.log(res);
+      document.cookie = `accessToken=${res.headers.accesstoken}; path=/;`;  //물어봅시다 (2)
+    } catch (error) {
+      // setErrorMsg(error.response.data.message);
+    }
+  };
+
+
+
+
+
+
+
+<2>. instance => axios 부분 instance로 바꿔주기!!
+
+1. import 바로 밑에다가 선언해주세요!! 함수 안 return문 위에다가 노우노우~!
+export const instance = axios.create({
+  baseURL: "http://1.244.223.183/",
+});
+
+여기서 baseURL은 은지님과 수지님 백엔드 서버!! 아마 주소 주실거니깐 그걸로 받아서 쓰면됩니당!
+우리가 저 앞부분은 똑같고 뒤에 뭐 로그인 홈페이지나 회원가입 홈페이지 '/' 뒷부분이 달라지니깐 앞에 공통으로 들어가는 
+부분!!을 따로 빼서 관리하면 편하겠둉?? 
+
+
+
+
+<3>. 이 부분은 강의 자료 보면 있어요! 
+우리가 요청을 보낼때랑 응답받을때 어떻게 해야하는지 보여주는 고론 코드!
+
+1) request부분 //물어봅시다(3)
+ instance.interceptors.request.use((config) => {
+  const accessToken =
+    document.cookie &&
+    document.cookie
+      .split(";")
+      .filter((cookies) => cookies.includes("accessToken"))[0] // 필터링 후 첫 번째 요소
+      ?.split("=")[1]; // = 기준으로 분리 후 두 번째 요소를 선택, 
+      ** 옵셔널 체이닝 : (?.) document.cookie가 null or undef 
+                        -> 해당 속성 접근 x, 다음 속성 혹은 메서드를 스킵
+                        => document.cookie가 빈 값이라면 에러 방지, 코드 안정성^
+  return config; // 는 수정된 객체!
+});
+
+2) response부분 => 이 부분은 우리가 아까 axios 쓸 때는 통신 보낼때마다 document.cookie저장소에 저장시켜줘야했는데 이제 그럴필요가 없음!! intercepter로 중간에서 한 번만 처리!!해줌!!
+
+instance.interceptors.response.use((config) => {
+  config.headers.accesstoken &&
+    (document.cookie = `accessToken=${config.headers.accesstoken}; path=/;`);
+  return config;
+});
+const LoginSubmitHandler = async (event) => {
+    event.preventDefault();
+    try {
+      const res = await instance.post("/api/user/login", { 
+        address: "test12345",
+        password: "test12345",
+      });
+      console.log(res); 
+      console.log("로그인 성공");
+      navigate("/MainHomePage");
+    } catch (error) {
+      console.log("로그인 실패");
+      console.log(error.message);
+    }
+  };
+
+
+이렇게 두 개의 방법이 있습니당!! 근데 저도 instance부분은 개념 완전 이해가 어려워서ㅜㅜㅜ이정도로밖에 설명을 못드리겠네요ㅜㅜ
+죄송함돠...ㅎ파이팅...!!
+
+
+
+
+★ 리덕스 
+
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
+export const __postLogin = createAsyncThunk("postLogin", async (payload) => {
+  try {
+    const res = await axios.post("http://1.244.223.183/api/user/login", {
+      address: "test12345",
+      password: "test12345",
+    });
+    document.cookie = `accessToken=${res.headers.AccessToken}; path=/;`;
+    return;
+  } catch (error) {
+    console.log(error.message);
+    return error.message;
+  }
+});
+export const __postRegister = createAsyncThunk(
+  "postRegister",
+  async (payload) => {
+    try {
+      const res = await axios.post("http:/localhost:4000/api/auth/signup", {
+        username: "jung",
+        password: "hwan12345",
+      });
+      document.cookie = `accessToken=${res.headers.AccessToken}`;
+      return;
+    } catch (error) {
+      console.log(error.message);
+      return error.message;
+    }
+  }
+);
+const initialState = {
+  isLoading: false,
+  isError: false,
+  error: null,
+};
+const authorization = createSlice({
+  name: "login",
+  initialState,
+  extraReducers: (builder) => {
+    builder
+      .addCase(__postLogin.pending, (state, action) => {
+        state.isLoading = true;
+        state.isError = false;
+      })
+      .addCase(__postLogin.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+      })
+      .addCase(__postLogin.rejected, (state, action) => { // ~postLogin
+        state.isLoading = false;
+        state.isError = true;
+        state.error = action.payload;
+      })
+      .addCase(__postRegister.pending, (state, action) => {
+        state.isLoading = true;
+        state.isError = false;
+      })
+      .addCase(__postRegister.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+      })
+      .addCase(__postRegister.rejected, (state, action) => { // ~postRegister
+        state.isLoading = false;
+        state.isError = true;
+        state.error = action.payload;
+      });
+  },
+
+
+  /////////////////////////////////////////////////////////////////////
+
+   - 7 / 17 상담 메모 .
+1) 로그인
+쿠키에 담기, 헤더에 담기, 바디에 담기
+쿠키 - 작은 저장소
+쿠키에 토큰을 담는다면,
+담아진 토큰이 브라우저에 왔을 때
+브라우저 자체에 토큰이 씌워짐
+-> 별도의 절차 필요 x
+단점 : 데이터 컨트롤이 불가,
+토큰 필요성의 여부를 따지지 않음 ( 토큰이 필요하지 않아도 토큰이 오감 )
+
+헤더 - 토큰 자체를 추출해옴
+바디 - ``
+
+로컬 스토리지, 세션 스토리지
+-> 브라우저의 저장소 - 임시로 저장해 둠
+
+** 인터셉터 - 스토리지에 토큰이 있는지 여부
+여부에 따른 토큰 작업
+true라면 담아서 보냄
+false라면  ~
+
+=> 토큰 : "놀이공원 입장권"
+있다면, 어느 놀이기구든 탑승 가능!
+
+
+서버가 우리에게 토큰을 줌
+-> 어딘가에 저장해야 함(로컬 or 세션)
+-> 이것들은 인터넷 창의 저장소임!
+-> getItem() 등을 사용해 토큰을 꺼내고
+담아서 사용!
+
+로컬과 세션의 차이:
+로컬 - setItem 사용,
+토큰 요청을 날리지 않으면 계속 작성 필요!
+세션 - 여러 창 중 하나에만 로그인하고
+그 창을 닫았을 때 모두 토큰이 날아감!
+
+로컬스토리지.setItem(A, B)
+로컬스토리지.getItem(A, B)
+
+서버가 : 리퀘스트에 요청을 담아 보낼 때
+헤더 / 바디 등에 담아서 보내라는 요청을 받음
+
+2) 이미지를 담은 post 요청
+
+formData형식 사용 필요!
+
+게시물 미리보기 ㅏ...
+코드 검색 go!
+리덕스를 사용해서 댓글 실시간 업데이트!
+
+////////////////////////////////////////////////////////////////////////////////
+
+// 나영 
+
+1) 메인 페이지 하단 인기 짤, 최신 짤 title 넣기
+2) 마이페이지 최근 조회 게시글, 최근 작성 댓글, 좋아요한 게시글
+3) 인기글 썸네일, 좋아요 개수, 상세페이지 좋아요 개수
+4) 헤더 div 정렬
+5) **(추후) 콘택트, 히스토리 Css
+6) 
+
