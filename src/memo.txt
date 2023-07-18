@@ -8,17 +8,15 @@
     1. axios 써서 하기 => 근데 우리가 서버 주소를 일일이 다 관리하기가 귀찮단 말이죠 300개가 넘는다 생각하믄...
     끔찍 그래서 instance 쓰면 편안.ㅎㅎ
   
-   const [email, setEmail] = useState('');
+   const [loginId , setLoginId ] = useState('');
    const [pw, setPw] = useState('');
 
     const LoginSubmitHandler = async (event) => {
     event.preventDefault();
     try {
-      const res = await axios.post("localhost:4000/todos/", {
-        ”email” : “email@gmail.com”,
-        ”password” : “password”
-        ”latitude” : 10,
-        ”longitude” : 20,
+      const res = await axios.post("http://3.36.117.155/api/members/login", {
+        ”loginId ” : “admin1”,
+        ”password” : “Qwer1234!”
       });
     console.log("로그인 성공");
         } catch (error) {
@@ -29,7 +27,7 @@
 
       console.log(res); => console찍어서 값이 들어오는지 꼭 확인하기!! 
       
-      console.log(res.headers.accesstoken) => accesstoken을 꺼내서 쿠키에 저장!!
+      console.log(res.headers.authorization) => accesstoken을 꺼내서 쿠키에 저장!!
       쿠키는 검사페이지 들어가서 애플리케이션 들어가면 로컬 스토리지 밑에 쿠키 저장소 볼 수 있어요 거기서 accesstoken값 들어오는지 확인해보면 됩니다!!
 
       // accesstoken을 꺼내서 쿠키에 저장 <- 해야함
@@ -267,10 +265,229 @@ formData형식 사용 필요!
 
 // 나영 
 
-1) 메인 페이지 하단 인기 짤, 최신 짤 title 넣기
-2) 마이페이지 최근 조회 게시글, 최근 작성 댓글, 좋아요한 게시글
+1) 메인 페이지 하단 인기 짤, 최신 짤 title 넣기, 썸네일 넣기
+2) 마이페이지 최근 조회 게시글, 최근 작성 댓글, 좋아요한 게시글 div css
 3) 인기글 썸네일, 좋아요 개수, 상세페이지 좋아요 개수
 4) 헤더 div 정렬
 5) **(추후) 콘택트, 히스토리 Css
 6) 
 
+
+
+
+/////////////////////////////////////////////////////////
+
+import axios from 'axios';
+
+
+// 조회
+const getTodos = async () => {
+  const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}/todos`);
+  return response.data;
+}
+
+// 추가
+const addTodos = async (newTodo) => {
+  await axios.post(`${process.env.REACT_APP_SERVER_URL}/todos`, newTodo);
+}
+
+// 삭제
+const deleteTodos = async (id) => {
+  await axios.delete(`${process.env.REACT_APP_SERVER_URL}/todos/${id}`);
+}
+
+// 수정
+const modifyTodos = async (data) => {
+  const { id, ...updatedData } = data;
+  await axios.put(`${process.env.REACT_APP_SERVER_URL}/todos/${id}`, updatedData)
+}
+
+
+
+{
+id: 1,
+title: "글 제목",
+content: "내용",
+image: "",
+createdAt: "2023-07-18T01:22:03.013054",
+modifiedAt: null,
+isLike: false,
+comments: [{
+“nickname” : “닌닌”,
+“content” : “내용”
+},
+{
+“nickname” : “닌닌”,
+“content” : “내용”
+},
+{
+“nickname” : “닌닌”,
+“content” : “내용”
+},
+{
+“nickname” : “닌닌”,
+“content” : “내용”
+},
+{
+“nickname” : “닌닌”,
+“content” : “내용”
+},
+{
+“nickname” : “닌닌”,
+“content” : “내용”
+},
+{
+“nickname” : “닌닌”,
+“content” : “내용”
+},
+{
+“nickname” : “닌닌”,
+“content” : “내용”
+},
+]
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+
+// 요청 인터셉터 추가하기
+axios.interceptors.request.use(function (config) {
+    // 요청이 전달되기 전에 작업 수행
+    return config;
+  }, function (error) {
+    // 요청 오류가 있는 작업 수행
+    return Promise.reject(error);
+  });
+
+// 응답 인터셉터 추가하기
+axios.interceptors.response.use(function (response) {
+    // 2xx 범위에 있는 상태 코드는 이 함수를 트리거 합니다.
+    // 응답 데이터가 있는 작업 수행
+    return response;
+  }, function (error) {
+    // 2xx 외의 범위에 있는 상태 코드는 이 함수를 트리거 합니다.
+    // 응답 오류가 있는 작업 수행
+    return Promise.reject(error);
+  });
+
+
+  //////////////////////////////////////////////////////
+  if (nickname.trim() === "" && password.trim() === "") {
+alert("닉네임과 비밀번호를 입력해주세요.");
+} else if (!email) {
+alert("email을 입력해주세요.");
+} else if (!nickname) {
+alert("nickname을 입력해주세요.");
+} else if (!password) {
+alert("password를 입력해주세요.");
+} else if (password !== password2) {
+alert("password를 동일하게 입력해주세요.");
+} else if (!isEmail(email)) {
+alert("이메일을 올바르게 입력해주세요.");
+} else if (!isPassword(password)) {
+alert("패스워드는 8~16자, 영문,숫자,특수문자 조합으로 입력해주세요.");
+} else if (!isNickname(nickname)) {
+alert("아이디는 5~12자, 영문자 또는 숫자로 입력해주세요.");
+} else {
+postSignUpMutaion.mutate({ nickname, password, email });
+}
+------------
+//이메일 체크
+export const isEmail = (asValue) => {
+const regExp = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/;
+
+return regExp.test(asValue); // 형식에 맞는 경우 true 리턴
+};
+//비밀번호 체크 : 8~16자 영문,숫자,특수문자 조합
+export const isPassword = (asValue) => {
+const regExp = /^(?=.*[A-Za-z])(?=.*[~!@#$%^&*()+|=])[A-Za-z\d~!@#$%^&*()+|=]{8,21}$/im;
+return regExp.test(asValue); // 형식에 맞는 경우 true 리턴
+};
+//닉네임 체크 : 5~12글자 영문자 또는 숫자
+const isNickname = (asValue) => {
+const regExp = /^[a-z]+[a-z0-9]{5,12}$/g;
+
+return regExp.test(asValue); // 형식에 맞는 경우 true 리턴
+};
+
+
+
+
+////////////////////////////////////////////////////////////////////////////
+
+1) thunk - 미들웨어.
+
+미들웨어란 : 객체가 아닌 함수를 담아 전달 가능하게.
+디스패치의 행동에 제어를 줌.
+직접적으로 제어를 준다기보다는
+디스패치의 행동 이전의 단계의 역할.
+
+비동기 작업에 thunk를 사용하곤 함.
+
+2) state를 만든다고 가정하면, 수천 개가 넘게 됨.
+local의 영역에서는 복잡하고 어려움.
+
+서버 통신하려면 리덕스를 써야 해! (x)
+
+사용하는 data의 필요성에 따른 영역 넓히기 여부.
+다수의 컴포넌트에서 사용한다면 리덕스 사용,
+소수의 컴포넌트에서 사용한다면 useState() 사용!
+
+-> 서버와 통신하게 된다면,
+글로벌 스테이트에서 사용해야 할 것은 리덕스로 전역 관리
+
+
+3) 일반적인 회사에서는 툴킷 99.9% 사용 예상.
+툴킷 API에 익숙해질 것!
+
+프레임워크 - 규칙을 따라야 함
+:( 강제성을 가지고, 기능이 많음)
+라이브러리 - 코드를 갖다붙여 쓰는 것
+
+
+4) 쿼리. Query. RTK나 react-query나 비슷함
+리액트 쿼리는 서버 스테이트 매니지먼트. 서버 상태 관리!
+리덕스는 클라이언트 상태 관리인데? ㅓ?
+
+리액트 쿼리의 목적:
+데이터베이스의 데이터, 화면 상의 데이터 일치
+-> 리액트 개발자가 책임질 것
+로컬, 글로벌의 데이터뿐만 아니라 서버까지 고려!
+
+
+** 로그인 상태!! 전역 상태에서 존재해야 함!! **
+
+댓글은 한 화면에 전부 위치함.
+다른 댓글은 수정할 수 없다.
+
+*** useContext,...!!!!!! ***
+: 명시적으로 prop을 전달하지 않고도 
+컨텍스트의 값을 사용할 수 있다!
+
+리덕스는 store가 무적권 1개만 있음!
+컨텍스트는 만들 때마다 생김~
+마치 컨텍스트 안의 컴포넌트들이 형제 관계처럼!
+
+놀랍게도 리액트 기본 기능임... ... ...
+놀랍게도 요소가 여러 개라도
+전부 독립적으로 움직임... ... ...
+** Children react API 참고하기
+-> 분기 처리 가능!
+react createElement API
+
+-----------
+충격적 사실...
+컴포넌트의 return 부분에서
+로직이 보이는 것은 복잡해 보임...
+결국, 명령적 -> 선언적으로 노력!
+식이 보이지 않게 구현하기~
+
+useState()의 상위호환 useReducer?
+적절한 구조에 맞게 바꿔서 사용할 것!
+
+뷰와 로직을 구분하기, 어떻게?
+커스텀 훅으로!
+
+구조분해할당... 이걸 모르면 않되
+무적권 알고있어야되,!!!!!!!!!!!!!!
+모르면 ES6를 이해를 못 한 것임

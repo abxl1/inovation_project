@@ -1,6 +1,8 @@
 import React, { useState, useCallback, useRef } from 'react';
+import { useMutation, useQueryClient } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import { styled } from 'styled-components';
+import { addPosts } from '../axios/api';
 
 function Writing() {
   const navigate = useNavigate();
@@ -49,9 +51,29 @@ function Writing() {
     fileInputRef.current.click();
   };
 
-  const handleSubmit = (event) => {
+  const queryClient = useQueryClient();
+  // const addPostsMutation = useMutation(addPosts, {
+  //   onSuccess: () => {
+  //     queryClient.invalidateQueries('posts');
+  //   }
+  // });
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    // 여기에 작성 완료 시 동작할 코드를 추가할 수 있습니다.
+
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('content', content);
+    formData.append('image', image);
+
+    try {
+      await addPosts(formData);
+      queryClient.invalidateQueries('posts');
+      navigate('/');
+      alert("작성완료되었습니다!");
+    } catch (error) {
+      console.error('Error submitting post:', error);
+    }
   };
 
   return (

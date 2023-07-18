@@ -3,10 +3,20 @@ import Header from '../component/Header'
 import { styled } from 'styled-components'
 // import where from '../img/where.jpg'
 import jesus from '../img/jesus.jpg'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { getDetailPosts } from '../axios/api'
+import { useQuery } from 'react-query'
 
 function Detail() {
+
   const navigate = useNavigate();
+  const location = useLocation();
+
+
+const param = useParams();
+
+const { isLoading, isError, data } = useQuery(['posts', param.id], () => getDetailPosts(param.id));
+  
   const handleGoBack = () => {
     navigate(-1); // 바로 이전 페이지로 이동, '/main' 등 직접 지정도 당연히 가능
   };
@@ -17,7 +27,7 @@ function Detail() {
     setLiked(!liked);
   };
 
-  const location = useLocation();
+  
   const handleCopyClipBoard = async (text) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -26,29 +36,28 @@ function Detail() {
       console.log(err);
     }
   };
-
-console.log(location)
   return (
     <div>
         <Header />
         <StOutContainer>
-          <StTitle>독실한 크리스천에게</StTitle>
+          <StTitle>{data?.title}</StTitle>
           <StBoxContainor>
             <StImgBox>
-            <StImg src={jesus} alt='어린양들아아아아아!!!!'></StImg>
+            <StImg src={data?.image} alt='사진'></StImg>
             <StButtonSet>
             <StButton onClick={handleClick} liked={liked}>{'❤'}</StButton>
             <StButton onClick={() => handleCopyClipBoard(`http://localhost:3000${location.pathname}`)}>{'☍'}</StButton>
             </StButtonSet>
-            <StContents>내용입니다.ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡkaflkajsdlfkjasdlkfaslkdnfalskdnflaksndflaknsdflkansflaksnfkasndlkfnaslkfnaslkfdnaslkndflkasndflka;ns;lfknsdflknㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ</StContents>
+            <StContents>{data?.content}</StContents>
             </StImgBox>
             <StComment>
               <StCommentTitle>댓글</StCommentTitle>
               <StCommentInput type="text" placeholder="댓글을 입력해주세요? (500자 이하로만)" />
-              <StCommentContent>닉네임1 : 댓글입니다?</StCommentContent>
-              <StCommentContent>닉네임2 : 댓글입니다?</StCommentContent>
-              <StCommentContent>닉네임3 : 댓글입니다?</StCommentContent>
-              <StCommentContent>닉네임4 : 댓글,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,d입니다?</StCommentContent>
+              {data?.comments.map((item)=>{
+                return (
+                  <StCommentContent>{`${item.nickname} : ${item.content}`}</StCommentContent>
+                )
+              })}              
             </StComment>
           </StBoxContainor>
           <StBackButton onClick={handleGoBack}>« 목록으로</StBackButton>

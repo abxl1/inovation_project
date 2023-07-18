@@ -12,8 +12,11 @@ function Main() {
             <StMainImg src={mainImg} alt='10점...10점이오!'></StMainImg>
             <StMainPostContainer>
               <StMainPost>
+                오늘의 최신짤
+                <img src='' alt='' />
               </StMainPost>
               <StMainPost>
+                오늘의 인기짤
               </StMainPost>
             </StMainPostContainer>
         </StMainContainer>
@@ -53,7 +56,7 @@ const StMainImg = styled.img`
 `
 
 const StMainPostContainer = styled.div`
-display: flex;
+  display: flex;
   justify-content : center;
   margin-top: 100px;
   margin-bottom: 100px;
@@ -65,4 +68,6 @@ const StMainPost = styled.div`
   width: 650px;
   height: 500px;
   background-color: gray;
+  padding: 30px;
+  font-size: 19px;
 `

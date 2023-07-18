@@ -1,111 +1,23 @@
-// import React from 'react'
-// import Header from '../component/Header'
-// import Category from '../component/Category'
-// import { styled } from 'styled-components';
-// import { useNavigate } from 'react-router-dom';
-
-// function Post() {
-//   const navigate = useNavigate();
-//   return (
-//     <div>
-//       <Header/>
-//       <StOutContainer>
-//         <StWrapper>
-//           <StTitle>전체글보기</StTitle>
-//           <Category />
-//           <StCardContainor>
-//               <StCard onClick={()=>{navigate('/detail')}}>gdsgsd</StCard>
-//               <StCard onClick={()=>{navigate('/detail')}}>gdsgsd</StCard>
-//               <StCard onClick={()=>{navigate('/detail')}}>gdsgsd</StCard>
-//               <StCard onClick={()=>{navigate('/detail')}}>gdsgsd</StCard>
-//               <StCard onClick={()=>{navigate('/detail')}}>gdsgsd</StCard>
-//               <StCard onClick={()=>{navigate('/detail')}}>gdsgsd</StCard>
-//               <StCard onClick={()=>{navigate('/detail')}}>gdsgsd</StCard>
-//           </StCardContainor>
-//         </StWrapper>
-//       </StOutContainer>
-//     </div>
-//   )
-// }
-
-// export default Post;
-// const StOutContainer = styled.div`
-//   display: flex;
-//   align-items: center;
-//   justify-content : center;
-//   padding-top: 100px;
-// `
-
-// const StWrapper = styled.div`
-//   background-color : none;
-//   width: 1500px;
-//   margin: 0px 80px 0 80px;
-//   display: flex;
-//   justify-content : center;
-//   align-items: center;
-//   align-content: center;
-//   gap: 30px;
-//   flex-direction: column;
-// `
-
-// const StTitle = styled.div`
-// font-size: 35px;
-// margin-top : 150px;
-// `
-
-// const StCardContainor = styled.div`
-//   width: 1200px;
-//   margin-top: 100px;
-//   min-width : 500px;
-//   display: flex;
-//   flex-wrap: wrap;
-//   justify-content : center;
-//   align-items: center;
-//   align-content: center;
-// `
-
-// const StCard = styled.div`
-//   background-color: #FFCE50;
-//   width : 300px;
-//   height : 300px;
-//   margin : 50px;
-// `
-
 import React, { useState, useEffect } from 'react';
-import Header from '../component/Header';
-import Category from '../component/Category';
 import { styled } from 'styled-components';
+import Header from '../component/Header';
+import Category from '../component/Category'
+import { useQuery } from 'react-query';
+import { getPosts } from '../axios/api';
 import { useNavigate } from 'react-router-dom';
 
 function Post() {
+
   const navigate = useNavigate();
-  const [cards, setCards] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [page, setPage] = useState(1);
-
-  const loadMoreCards = () => {
-    setIsLoading(true);
-    // 여기에서 새로운 데이터를 가져오는 API 호출 또는 데이터 처리 로직을 구현해야 합니다.
-    setTimeout(() => {
-      const newCards = Array.from({ length: 6 }, (_, index) => `Card ${cards.length + index + 1}`);
-      setCards((prevCards) => [...prevCards, ...newCards]);
-      setIsLoading(false);
-    }, 1500);
-  };
-
-  useEffect(() => {
-    loadMoreCards();
-  }, []);
+  const [postCount, setPostCount] = useState(10); // 표시할 게시물 수를 추적하는 상태 변수
+  const [totalPosts, setTotalPosts] = useState(0); // 전체 게시물 수를 추적하는 상태 변수
 
   useEffect(() => {
     function handleScroll() {
-      if (
-        window.innerHeight + document.documentElement.scrollTop ===
-        document.documentElement.offsetHeight
-      ) {
-        if (!isLoading) {
-          setPage((prevPage) => prevPage + 1);
-        }
+      const { scrollTop, clientHeight, scrollHeight } = document.documentElement;
+
+      if (scrollTop + clientHeight >= scrollHeight - 20) {
+        setPostCount(prevCount => prevCount + 10); // 게시물 수를 10개씩 증가시킵니다.
       }
     }
 
@@ -113,8 +25,25 @@ function Post() {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [isLoading]);
+  }, []);
 
+  const { isLoading, isError, data } = useQuery("posts", getPosts);
+
+  if (isLoading) {
+    return <p>로딩중입니다....!</p>;
+  }
+
+  if (isError) {
+    return <p>오류가 발생하였습니다...!</p>;
+  }
+
+  
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  };
   return (
     <div>
       <Header />
@@ -122,14 +51,18 @@ function Post() {
         <StWrapper>
           <StTitle>전체글보기</StTitle>
           <Category />
-          <StCardContainer>
-            {cards.map((card, index) => (
-              <StCard key={index} onClick={() => navigate('/detail')}>
-                {card}
+          <StCardContainor>
+            {data.slice(0, postCount).map((post) => (
+              <StCard key={post.id} onClick={()=>{navigate(`/detail/${post.id}`)}}>
+                <StPostImg></StPostImg>
+                <StPostTitel>{post.title}</StPostTitel>
               </StCard>
             ))}
-            {isLoading && <LoadingSpinner>Loading...</LoadingSpinner>}
-          </StCardContainer>
+          </StCardContainor>
+          {isLoading && <p>Loading...</p>}
+          {!isLoading && (
+            <StButton onClick={scrollToTop}>최상단으로 이동</StButton>
+          )}
         </StWrapper>
       </StOutContainer>
     </div>
@@ -162,7 +95,7 @@ const StTitle = styled.div`
   margin-top: 150px;
 `;
 
-const StCardContainer = styled.div`
+const StCardContainor = styled.div`
   width: 1200px;
   margin-top: 100px;
   min-width: 500px;
@@ -174,15 +107,28 @@ const StCardContainer = styled.div`
 `;
 
 const StCard = styled.div`
-  background-color: #ffce50;
+  background-color: #FFCE50;
   width: 300px;
   height: 300px;
   margin: 50px;
+  cursor: pointer;
 `;
 
-const LoadingSpinner = styled.div`
-  text-align: center;
-  font-size: 20px;
-  margin-top: 20px;
-  color: #999;
+const StPostImg = styled.img`
+`
+
+const StPostTitel = styled.div`
+`
+
+const StButton = styled.button`
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #FFCE50;
+  color: #FFFFFF;
+  padding: 10px 20px;
+  border: 1px solid #242426;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
 `;

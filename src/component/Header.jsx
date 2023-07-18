@@ -2,8 +2,6 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { styled } from 'styled-components'
 
-
-
 function Header() {
 
   const navigate = useNavigate();
@@ -19,7 +17,7 @@ function Header() {
           <StHeaderButton onClick={()=>{navigate('/contact')}}>오시는 길</StHeaderButton>
         </StSetContainer>
 
-        <StHeaderButton onClick={()=>{navigate('/mypage')}}>마이페이지</StHeaderButton>
+        <StHeaderButton onClick={()=>{navigate('/mypage')}}>마이페이지 / </StHeaderButton>
         <StLoginButton onClick={()=>{navigate('/login')}}>로그인 / 회원가입</StLoginButton>
     </StHeaderContainer>
   )

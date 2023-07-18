@@ -1,17 +1,73 @@
-import React from 'react'
+import React, { useState } from 'react'
+// import { useMutation, useQueryClient } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import { styled } from 'styled-components'
+// import { login } from '../axios/api';
+import axios from 'axios';
 
 function Login() {
     const navigate = useNavigate();
+
+
+    const [loginUserId , setLoginUserId ] = useState('');
+    const [pw, setPw] = useState('');
+
+    const handleLoginUserIdChange = (event) => {
+      setLoginUserId(event.target.value);
+    };
+    const handlePwChange = (event) => {
+      setPw(event.target.value);
+    };
+
+  //   const queryClient = useQueryClient();
+  // const loginMutation = useMutation(login, {
+  //   onSuccess: (data) => {
+
+  //     const token = data.token;
+
+  //     localStorage.setItem('token', token);
+
+  //     queryClient.invalidateQueries('posts');
+  //     console.log(data)
+  //   }})
+  //   const LoginSubmitHandler = async (event) => {
+  //     event.preventDefault()
+  //     const loginId = {
+  //       loginId : loginUserId,
+  //       password : pw
+  //       };
+  //       loginMutation.mutate(loginId)
+  //       navigate('/')
+  // };
+
+
+
+      const LoginSubmitHandler = async (event) => {
+      event.preventDefault();
+      try {
+        const res = await axios.post("http://3.36.117.155/api/members/login", {
+          loginId : loginUserId,
+          password : pw
+        });
+          console.log("로그인 성공");
+          const token = res.headers.authorization
+          localStorage.setItem('token', token);
+          navigate('/')
+          } catch (error) {
+          console.log("로그인 실패");
+          console.log(error.message);
+          }
+      };
+
+
   return (
     <LoginPageWrapper>
         <StLogo onClick={()=>{navigate('/')}}>알록짤록</StLogo>
     <LoginForm>
       <JoinTitle>로그인하기</JoinTitle>
-      <InputField type="text" placeholder="아이디" />
-      <InputField type="password" placeholder="비밀번호" />
-      <SubmitButton type="submit">로그인</SubmitButton>
+      <InputField type="text" placeholder="아이디" value={loginUserId} onChange={handleLoginUserIdChange} />
+      <InputField type="password" placeholder="비밀번호" value={pw} onChange={handlePwChange} />
+      <SubmitButton type="submit" onClick={LoginSubmitHandler}>로그인</SubmitButton>
       <div>아직 알록짤록 계정이 없으신가요?</div>
       <StJoinLink onClick={()=>{navigate('/signup')}}>회원가입</StJoinLink>
     </LoginForm>
