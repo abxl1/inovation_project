@@ -457,9 +457,6 @@ local의 영역에서는 복잡하고 어려움.
 
 ** 로그인 상태!! 전역 상태에서 존재해야 함!! **
 
-댓글은 한 화면에 전부 위치함.
-다른 댓글은 수정할 수 없다.
-
 *** useContext,...!!!!!! ***
 : 명시적으로 prop을 전달하지 않고도 
 컨텍스트의 값을 사용할 수 있다!
@@ -491,3 +488,7 @@ useState()의 상위호환 useReducer?
 구조분해할당... 이걸 모르면 않되
 무적권 알고있어야되,!!!!!!!!!!!!!!
 모르면 ES6를 이해를 못 한 것임
+
+https://react-ko.dev/ // FE재남님의 all 번역 react 공부 사이트 S2
+https://tkdodo.eu/blog/react-query-and-forms // 이건잘모르겟어요 들어가서 알아서 보시길 ㅎㅎ 잘못들엇음
+https://velog.io/@sebinn/GitHub-%EC%88%98%EC%A0%95%EB%90%9C-%ED%8C%8C%EC%9D%BC-%EC%98%AC%EB%A6%AC%EA%B8%B0%ED%8C%8C%EC%9D%BC-%EC%97%85%EB%8D%B0%EC%9D%B4%ED%8A%B8

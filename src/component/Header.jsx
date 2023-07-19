@@ -1,14 +1,26 @@
 import React from 'react'
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom'
 import { styled } from 'styled-components'
+import { loginOff } from '../redux/modules/loginSlice';
 
 function Header() {
 
+  const dispatch = useDispatch();
+
   const navigate = useNavigate();
+  const {isLogin} = useSelector((state) => state.isLogin)
+
+
+
+const logOutButton = () =>{
+  localStorage.removeItem("token")
+  dispatch(loginOff())
+}
 
   return (
     <StHeaderContainer>
-        <div style={{padding : '0px 150px 0px 0px'}}></div>
+        <div style={{padding : '0px 150px 0px 0px'}} onClick={()=>{navigate('/writing')}}>글쓰기</div>
         <StSetContainer>
           <StHeaderButton onClick={()=>{navigate('/post')}}>전체글</StHeaderButton>
           <StHeaderButton onClick={()=>{navigate('/favorite')}}>인기글</StHeaderButton>
@@ -16,9 +28,19 @@ function Header() {
           <StHeaderButton onClick={()=>{navigate('/history')}}>프로젝트 연혁</StHeaderButton>
           <StHeaderButton onClick={()=>{navigate('/contact')}}>오시는 길</StHeaderButton>
         </StSetContainer>
-
-        <StHeaderButton onClick={()=>{navigate('/mypage')}}>마이페이지 / </StHeaderButton>
-        <StLoginButton onClick={()=>{navigate('/login')}}>로그인 / 회원가입</StLoginButton>
+        
+          {isLogin 
+          ? 
+          <StButtonSet>
+          <StButton onClick={()=>{navigate('/mypage')}}>마이페이지</StButton>
+          <StButton onClick={logOutButton}>로그아웃</StButton>
+          </StButtonSet>
+          : 
+          <StButtonSet>
+          <StButton onClick={()=>{navigate('/login')}}>로그인</StButton>
+          <StButton onClick={()=>{navigate('/signup')}} >회원가입</StButton>
+          </StButtonSet>}
+        
     </StHeaderContainer>
   )
 }
@@ -58,7 +80,12 @@ const StHeaderButton = styled.div`
   cursor: pointer;
   min-width: 90px;
 `
-const StLoginButton = styled.div`
+
+const StButtonSet = styled.div`
+  display: flex;
+`
+
+const StButton = styled.div`
   cursor: pointer;
   margin-left: 20px;
 `

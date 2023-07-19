@@ -41,8 +41,6 @@ function SignUp() {
       navigate('/login')
 };
   
-  
-
   return (
     <JoinPageWrapper>
         <StLogo onClick={()=>{navigate('/')}}>알록짤록</StLogo>

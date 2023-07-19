@@ -2,21 +2,46 @@ import React from 'react'
 import Header from '../component/Header'
 import { styled } from 'styled-components'
 import mainImg from '../img/mainImg.jpg'
+import { useQuery, useQueryClient } from 'react-query';
+import { getTodayPosts } from '../axios/api';
 
 function Main() {
+  const queryClient = useQueryClient();
+
+  const { isLoading, isError, data } = useQuery("posts", getTodayPosts);
+
+  console.log(data)
+
+  if (isLoading) {
+    queryClient.invalidateQueries('posts')
+    return <p>로딩중입니다! 잠시만 기다려 주세요!</p>;
+  }
+
+  if (isError) {
+    return <p>오류가 발생하였습니다...!</p>;
+  }
+
+  const MainPost = data?.data[0]
+  
+  console.log('hi')
+
   return (
     <div>
         <Header />
         <StOutContainer>
         <StMainContainer>
-            <StMainImg src={mainImg} alt='10점...10점이오!'></StMainImg>
+            <StMainImg src={mainImg} alt='10점...10점이요!'></StMainImg>
             <StMainPostContainer>
               <StMainPost>
+                
                 오늘의 최신짤
-                <img src='' alt='' />
+                <StMainPostTitle>{MainPost.title}</StMainPostTitle>
+                <StMainPostImg src={MainPost.image} alt='오늘의 최신짤!' />
               </StMainPost>
               <StMainPost>
                 오늘의 인기짤
+                <StMainPostTitle>{MainPost.title}</StMainPostTitle>
+                <StMainPostImg src={MainPost.image} alt='오늘의 인기짤!' />
               </StMainPost>
             </StMainPostContainer>
         </StMainContainer>
@@ -45,13 +70,13 @@ const StMainContainer = styled.div`
 `
 
 const StMainImg = styled.img`
-  width: 1100px;
-  height: 700px;
+  width: 800px;
+  /* height: 700px; */
   display: flex;
   margin-top : 70px;
   transition: transform 0.3s ease;
   &:hover{
-  transform: scale(1.2);
+  transform: scale(1.25);
 }
 `
 
@@ -65,9 +90,24 @@ const StMainPostContainer = styled.div`
 `
 
 const StMainPost = styled.div`
-  width: 650px;
-  height: 500px;
-  background-color: gray;
+  width: 510px;
+  background-color: #FFCE50;
+  color: #242426;
   padding: 30px;
   font-size: 19px;
+  display: flex;
+  flex-direction: column;
+  justify-content : center;
+  align-items: center;
+  
+`
+
+const StMainPostTitle = styled.div`
+  background-color: #FFCE50;
+  color: #242426;
+`
+
+const StMainPostImg = styled.img`
+  max-width : 450px;
+  max-height : 450px;
 `

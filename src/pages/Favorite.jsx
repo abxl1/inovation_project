@@ -2,8 +2,6 @@ import React from 'react'
 import Header from '../component/Header'
 import { styled } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import { getPosts } from '../axios/api';
-import { useQuery } from 'react-query';
 
 function Favorite() {
 

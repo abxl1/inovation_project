@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from 'react';
 import { styled } from 'styled-components';
 import Header from '../component/Header';
 import Category from '../component/Category'
@@ -7,36 +6,41 @@ import { getPosts } from '../axios/api';
 import { useNavigate } from 'react-router-dom';
 
 function Post() {
-
+  
   const navigate = useNavigate();
-  const [postCount, setPostCount] = useState(10); // 표시할 게시물 수를 추적하는 상태 변수
-  const [totalPosts, setTotalPosts] = useState(0); // 전체 게시물 수를 추적하는 상태 변수
+  // const [postCount, setPostCount] = useState(15); // 표시할 게시물 수를 추적하는 상태 변수
+  // const [totalPosts, setTotalPosts] = useState(0); // 전체 게시물 수를 추적하는 상태 변수
 
-  useEffect(() => {
-    function handleScroll() {
-      const { scrollTop, clientHeight, scrollHeight } = document.documentElement;
+  // useEffect(() => {
+  //   function handleScroll() {
+  //     const { scrollTop, clientHeight, scrollHeight } = document.documentElement;
 
-      if (scrollTop + clientHeight >= scrollHeight - 20) {
-        setPostCount(prevCount => prevCount + 10); // 게시물 수를 10개씩 증가시킵니다.
-      }
-    }
+  //     if (scrollTop + clientHeight >= scrollHeight - 20) {
+  //       setPostCount(prevCount => prevCount + 10); // 게시물 수를 10개씩 증가시킵니다.
+  //     }
+  //   }
 
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
+  //   window.addEventListener('scroll', handleScroll);
+  //   return () => {
+  //     window.removeEventListener('scroll', handleScroll);
+  //   };
+  // }, []);
 
+  // const reLoading = () => {
+    
+  // }
+  
   const { isLoading, isError, data } = useQuery("posts", getPosts);
-
+  console.log(data)
+  
   if (isLoading) {
+    
     return <p>로딩중입니다....!</p>;
   }
 
   if (isError) {
     return <p>오류가 발생하였습니다...!</p>;
   }
-
   
   const scrollToTop = () => {
     window.scrollTo({
@@ -52,10 +56,11 @@ function Post() {
           <StTitle>전체글보기</StTitle>
           <Category />
           <StCardContainor>
-            {data.slice(0, postCount).map((post) => (
+          {/* .slice(0, postCount) */}
+            {data?.data.map((post) => (
               <StCard key={post.id} onClick={()=>{navigate(`/detail/${post.id}`)}}>
-                <StPostImg></StPostImg>
-                <StPostTitel>{post.title}</StPostTitel>
+                <StPostImg src={post.image} alt={post.id} />
+                <StPostTitle>{post.title}</StPostTitle>
               </StCard>
             ))}
           </StCardContainor>
@@ -109,15 +114,25 @@ const StCardContainor = styled.div`
 const StCard = styled.div`
   background-color: #FFCE50;
   width: 300px;
-  height: 300px;
+  height: 350px;
   margin: 50px;
   cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 `;
 
 const StPostImg = styled.img`
+  width: 250px;
+  height: 250px;
 `
 
-const StPostTitel = styled.div`
+const StPostTitle = styled.div`
+background-color : #FFCE50;
+color: #242426;
+font-size : 20px;
+margin-top: 20px;
 `
 
 const StButton = styled.button`

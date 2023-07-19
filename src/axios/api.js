@@ -1,26 +1,42 @@
 import axios from "axios";
 
-const instance = axios.create({
-    baseURL: process.env.REACT_APP_SERVER_URL,
-  });
-  
-  // 요청을 보내기 전에 실행되는 인터셉터를 추가합니다.
-  instance.interceptors.request.use(
-    (config) => {
-      // 로컬 스토리지에서 토큰을 가져옵니다.
-      const token = localStorage.getItem('token');
-      
-      // 토큰이 존재할 경우 요청 헤더에 토큰을 추가합니다.
-      if (token) {
-        config.headers.Authorization = `${token}`;
-      }
-      
-      return config;
-    },
-    (error) => {
-      return Promise.reject(error);
+export const instance = axios.create({
+  baseURL: process.env.REACT_APP_SERVER_URL,
+});
+
+instance.interceptors.request.use(
+  function (config) {
+    // 로컬 스토리지에서 토큰 값 가져오기
+    const token = localStorage.getItem("token");
+
+    // 토큰이 존재하면 헤더에 담아서 요청 보내기
+    if (token) {
+      config.headers.Authorization = `${token}`;
     }
-  );
+
+    console.log("인터셉트 요청 성공!");
+    console.log(token);
+    console.log(config);
+    return config;
+  },
+  function (error) {
+    console.log("인터셉트 요청 오류!");
+    return Promise.reject(error);
+  }
+);
+
+instance.interceptors.response.use(
+  function (response) {
+    console.log("인터넵트 응답 받았어요!");
+    return response;
+  },
+  function (error) {
+    console.log("인터셉트 응답 못받았어요...ㅠㅠ");
+    return Promise.reject(error);
+  }
+);
+
+export default instance;
 
 // 회원가입
 const addUsers = async (newUser) => {
@@ -42,14 +58,26 @@ const getPosts = async () => {
 
 // 디테일 페이지 조회
 const getDetailPosts = async (id) => {
-    const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}/api/posts/${id}`);
+    const response = await instance.get(`/api/posts/${id}`);
     return response.data;
   }
+
+  // 오늘의 추천짤 조회
+  const getTodayPosts = async () => {
+    const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}/api/posts/today`);
+    return response.data;
+  }
+
+  // const addComment = async (id, content) => {
+  //   await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/members/signup`, newUser);
+  // }
+  
+  
   
   // * 게시글 추가
-  const addPosts = async (newPost) => {
-    await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/posts`, newPost);
-  }
+  // const addPosts = async (newPost) => {
+  //   await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/posts`, newPost);
+  // }
   
 //   // * 삭제
 //   const removePosts = async (id) => {
@@ -62,4 +90,4 @@ const getDetailPosts = async (id) => {
 //     await axios.put(`${process.env.REACT_APP_SERVER_URL}/posts/${id}`, updatedData)
 //   }
   
-  export { addUsers, getPosts, getDetailPosts, addPosts }
+  export { addUsers, getPosts, getDetailPosts, getTodayPosts }

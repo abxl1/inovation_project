@@ -1,32 +1,83 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Header from '../component/Header'
 import { styled } from 'styled-components'
-// import where from '../img/where.jpg'
-import jesus from '../img/jesus.jpg'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { getDetailPosts } from '../axios/api'
-import { useQuery } from 'react-query'
+import instance, { getDetailPosts } from '../axios/api'
+import { useQuery, useQueryClient } from 'react-query'
+import { usePostComment } from '../hooks/usePostComment'
 
 function Detail() {
+  const queryClient = useQueryClient();
+
+  
+  const param = useParams();
+  const [comment, setComment] = useState('');
 
   const navigate = useNavigate();
   const location = useLocation();
 
+  const handleCommentChange = (event) => {
+    setComment(event.target.value);
+  };
 
-const param = useParams();
-
-const { isLoading, isError, data } = useQuery(['posts', param.id], () => getDetailPosts(param.id));
+  const { data, isLoading } = useQuery('detailposts', () => getDetailPosts(param.id)) 
   
+  const postCommentmutation = usePostComment();
+
+
+  function postComment() {
+    comment && postCommentmutation.mutate({
+      id : param.id,
+      content : comment,
+    })
+    setComment('')
+  }
+
   const handleGoBack = () => {
     navigate(-1); // 바로 이전 페이지로 이동, '/main' 등 직접 지정도 당연히 가능
   };
 
-  const [liked, setLiked] = useState(false);
+  const [isLike, setIsLike] = useState(data?.data[0].isLike);
+  // const isLike = data?.data[0].isLike
 
-  const handleClick = () => {
-    setLiked(!liked);
+
+
+  const likeToggle = async (id) => {
+    console.log(id)
+    let res = await instance.post(`/api/likes/posts/${id}`)
+
+    queryClient.invalidateQueries('detailposts')
+    setIsLike(Boolean(data?.data[0].isLike))
+
+    console.log("res",res)
   };
+  
+  const handleLikeToggle = () => {
+    likeToggle(data?.data[0].id)
+  }
 
+  const deletePost = async (id) => {
+    let res = await instance.delete(`/api/posts/${id}`)
+    console.log("res",res)
+}
+
+
+  const handleDeletePost = () => {
+    deletePost(param.id)
+    navigate('/')
+  }
+
+
+  const deleteComment = async (id) => {
+    let res = await instance.delete(`/api/comments/${id}`)
+    queryClient.invalidateQueries('detailposts')
+    console.log("res",res)
+  }
+
+
+  const handleDeleteComment = (id) => {
+    deleteComment(id)
+  }
   
   const handleCopyClipBoard = async (text) => {
     try {
@@ -36,28 +87,55 @@ const { isLoading, isError, data } = useQuery(['posts', param.id], () => getDeta
       console.log(err);
     }
   };
+  useEffect(()=>{
+    console.log("data", data)
+    console.log("id", data?.data[0].id)
+  },[data]);
+
+  const comments = data?.data[0].comments
+
+  if(isLoading){
+    return <></>
+  }
+
   return (
     <div>
         <Header />
         <StOutContainer>
-          <StTitle>{data?.title}</StTitle>
+          <StTitle>{data?.data[0].title}</StTitle>
           <StBoxContainor>
             <StImgBox>
-            <StImg src={data?.image} alt='사진'></StImg>
+            <StImg src={data?.data[0].image} alt='짤'></StImg>
             <StButtonSet>
-            <StButton onClick={handleClick} liked={liked}>{'❤'}</StButton>
-            <StButton onClick={() => handleCopyClipBoard(`http://localhost:3000${location.pathname}`)}>{'☍'}</StButton>
+              <StLikeButton onClick={handleLikeToggle} liked={(isLike ? 'red' : '#242426')}>{'❤'}</StLikeButton>
+              <StButton onClick={() => handleCopyClipBoard(`http://localhost:3000${location.pathname}`)}>{'☍'}</StButton>
+              <StButton onClick={()=>{navigate('/writing')}}>✎</StButton>
+              <StButton onClick={handleDeletePost}>🗑︎</StButton>
             </StButtonSet>
-            <StContents>{data?.content}</StContents>
+            <StContents>{data?.data[0].content}</StContents>
             </StImgBox>
             <StComment>
               <StCommentTitle>댓글</StCommentTitle>
-              <StCommentInput type="text" placeholder="댓글을 입력해주세요? (500자 이하로만)" />
-              {data?.comments.map((item)=>{
-                return (
-                  <StCommentContent>{`${item.nickname} : ${item.content}`}</StCommentContent>
-                )
-              })}              
+              <StCommentBox>
+                <StCommentInput type="text" placeholder="댓글을 입력해주세요? (500자 이하)" value={comment} onChange={handleCommentChange}/>
+                <StCommentButton onClick={postComment} >작성</StCommentButton> 
+              </StCommentBox>
+              
+              {Array.isArray(comments) 
+              ? (
+                comments.map((item) => (
+                  <StCommentBox>
+                    {console.log(item)}
+                    <StCommentContent key={item.commentId}>
+                      {`${item.nickname} : ${item.content}`}
+                    </StCommentContent>
+                    <StCommentButton onClick={()=>handleDeleteComment(item.commentId)}>삭제</StCommentButton>
+                  </StCommentBox>
+                  ))
+                ) 
+              : (
+                  <p>댓글이 없습니다.</p>
+                )}     
             </StComment>
           </StBoxContainor>
           <StBackButton onClick={handleGoBack}>« 목록으로</StBackButton>
@@ -87,7 +165,6 @@ const StTitle = styled.div`
 
 const StBoxContainor = styled.div`
   display: flex;
-  /* align-items: center; */
   justify-content:space-between;
   flex-direction: row;
   margin: 70px 0px 100px 0px;
@@ -102,12 +179,13 @@ const StImgBox = styled.div`
   justify-content:space-between;
   flex-direction: column;
   padding: 30px;
+  margin-bottom : auto;
 `
 
 const StComment = styled.div`
   padding-left: 15px;
   background-color : #FFCE50;
-  padding : 60px;
+  padding : 30px;
   width: 500px;
 `
 
@@ -115,23 +193,43 @@ const StCommentTitle = styled.div`
   background-color : #FFCE50;
   color:#242426;
   font-size: 30px;
+  margin-bottom:30px;
+`
+
+const StCommentBox = styled.div`
+  background-color: #FFCE50;
+  display: flex;
+  margin-bottom: 20px;
 `
 const StCommentInput = styled.input`
-  margin-top: 30px;
   width: 380px;
-  height: 35px;
-  padding: 10px;
+  padding: 20px;
+  font-size: 20px;
+`
+
+const StCommentButton = styled.button`
+border: 1px solid #242426;
+background-color: #242426;
+padding: 10px;
+width: 70px;
+cursor: pointer;
+&:hover {
+  border: 1px solid #242426;
+  background-color: #FFCE50;
+  color: #242426;
+  transition: 0.4s ease;
+};
 `
 
 const StCommentContent = styled.div`
-  margin-top: 30px;
-  padding: 10px;
+width: 380px;
+  padding: 20px;
+  font-size: 20px;
   word-wrap: break-word;
   line-height: 1.2;
 `
 
 const StImg = styled.img`
-  /* margin:70px; */
   max-width : 650px;
 `
 
@@ -145,11 +243,10 @@ width: 650px;
   font-size : 30px;
   word-wrap: break-word;
   line-height: 1.2;
-
+  margin-bottom : auto;
 `
 
 const StBackButton = styled.button`
-  /* border: 1px solid #FFCE50; */
   font-size: 20px;
   margin-bottom: 100px;
 `
@@ -169,5 +266,14 @@ const StButton = styled.button`
   cursor: pointer;
   outline: none;
   transition: color 0.3s;
-  color: ${({ liked }) => (liked ? 'red' : '#242426')};
+  color:#242426;
+  &:hover {
+    ::before {
+      content: '${(props) => props.hoverText}';
+    }
+  }
+`;
+
+const StLikeButton = styled(StButton)`
+  color: ${({ liked }) => (liked)};
 `;

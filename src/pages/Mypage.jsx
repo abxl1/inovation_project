@@ -23,10 +23,10 @@ function Mypage() {
           <UserGrade>Premium</UserGrade>
         </UserInfo>
         <UserActions>
-          <EditProfileButton onClick={() => navigate('/profile/edit')}>
+          <EditProfileButton>
             프로필 수정
           </EditProfileButton>
-          <LogoutButton onClick={() => navigate('/logout')}>로그아웃</LogoutButton>
+          <LogoutButton>로그아웃</LogoutButton>
         </UserActions>
       </MyPageContent>
     </MyPageWrapper>
