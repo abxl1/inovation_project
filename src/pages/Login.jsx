@@ -32,8 +32,10 @@ function Login() {
           password : pw
         });
           console.log("로그인 성공");
+          const role = res.data.data.role
           const token = res.headers.authorization
           localStorage.setItem('token', token);
+          localStorage.setItem('role', role)
           dispatch(loginOn())
           navigate('/')
           } catch (error) {

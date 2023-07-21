@@ -26,7 +26,6 @@ function Mypage() {
           <EditProfileButton>
             프로필 수정
           </EditProfileButton>
-          <LogoutButton>로그아웃</LogoutButton>
         </UserActions>
       </MyPageContent>
     </MyPageWrapper>
@@ -107,12 +106,12 @@ const EditProfileButton = styled.button`
   font-size: 20px;
 `;
 
-const LogoutButton = styled.button`
-  padding: 15px 30px;
-  background-color: #ffce50;
-  color: #242426;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 20px;
-`;
+// const LogoutButton = styled.button`
+//   padding: 15px 30px;
+//   background-color: #ffce50;
+//   color: #242426;
+//   border: none;
+//   border-radius: 4px;
+//   cursor: pointer;
+//   font-size: 20px;
+// `;

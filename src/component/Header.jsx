@@ -9,18 +9,18 @@ function Header() {
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
-  const {isLogin} = useSelector((state) => state.isLogin)
-
-
+  const state = useSelector((state) => state)
 
 const logOutButton = () =>{
-  localStorage.removeItem("token")
   dispatch(loginOff())
 }
-
+const storedRole = localStorage.getItem("role");
+console.log("storedRole", storedRole)
   return (
     <StHeaderContainer>
-        <div style={{padding : '0px 150px 0px 0px'}} onClick={()=>{navigate('/writing')}}>글쓰기</div>
+        {(storedRole === 'NAYOUNG')
+        ? <div style={{padding : '0px 150px 0px 0px'}} onClick={()=>{navigate('/writing')}}>글쓰기</div>
+        : <div style={{padding : '0px 150px 0px 0px'}} ></div>}
         <StSetContainer>
           <StHeaderButton onClick={()=>{navigate('/post')}}>전체글</StHeaderButton>
           <StHeaderButton onClick={()=>{navigate('/favorite')}}>인기글</StHeaderButton>
@@ -29,7 +29,7 @@ const logOutButton = () =>{
           <StHeaderButton onClick={()=>{navigate('/contact')}}>오시는 길</StHeaderButton>
         </StSetContainer>
         
-          {isLogin 
+          {state.isLogin.isLogin
           ? 
           <StButtonSet>
           <StButton onClick={()=>{navigate('/mypage')}}>마이페이지</StButton>

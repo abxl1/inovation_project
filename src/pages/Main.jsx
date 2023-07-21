@@ -2,28 +2,16 @@ import React from 'react'
 import Header from '../component/Header'
 import { styled } from 'styled-components'
 import mainImg from '../img/mainImg.jpg'
-import { useQuery, useQueryClient } from 'react-query';
-import { getTodayPosts } from '../axios/api';
+import { useQuery } from 'react-query';
+import { getTodayFavoritePosts, getTodayPosts } from '../axios/api';
 
 function Main() {
-  const queryClient = useQueryClient();
 
-  const { isLoading, isError, data } = useQuery("posts", getTodayPosts);
+  const TodayPosts = useQuery("TodayPosts", getTodayPosts);
+  const TodayPostsData =  TodayPosts.data?.data[0];
 
-  console.log(data)
-
-  if (isLoading) {
-    queryClient.invalidateQueries('posts')
-    return <p>로딩중입니다! 잠시만 기다려 주세요!</p>;
-  }
-
-  if (isError) {
-    return <p>오류가 발생하였습니다...!</p>;
-  }
-
-  const MainPost = data?.data[0]
-  
-  console.log('hi')
+  const TodayFavoritePosts = useQuery("TodayFavoritePosts", getTodayFavoritePosts);
+  const TodayFavoritePostsData =TodayFavoritePosts.data?.data[0];
 
   return (
     <div>
@@ -34,14 +22,14 @@ function Main() {
             <StMainPostContainer>
               <StMainPost>
                 
-                오늘의 최신짤
-                <StMainPostTitle>{MainPost.title}</StMainPostTitle>
-                <StMainPostImg src={MainPost.image} alt='오늘의 최신짤!' />
+                오늘의 추천짤
+                <StMainPostTitle>{TodayPostsData?.title}</StMainPostTitle>
+                <StMainPostImg src={TodayPostsData?.image} alt='오늘의 추천짤!' />
               </StMainPost>
               <StMainPost>
                 오늘의 인기짤
-                <StMainPostTitle>{MainPost.title}</StMainPostTitle>
-                <StMainPostImg src={MainPost.image} alt='오늘의 인기짤!' />
+                <StMainPostTitle>{TodayFavoritePostsData?.title}</StMainPostTitle>
+                <StMainPostImg src={TodayFavoritePostsData?.image} alt='오늘의 인기짤!' />
               </StMainPost>
             </StMainPostContainer>
         </StMainContainer>

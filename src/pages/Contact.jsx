@@ -16,7 +16,7 @@ function Contact() {
           <StContactBox>
             <StContactName>유현주 님😺
               <StContact>
-                https://github.com/hyunJuS2
+                <a href='https://github.com/hyunJuS2'>{'https://github.com/hyunJuS2'}</a>
               </StContact>
             </StContactName>
           </StContactBox>
@@ -24,7 +24,7 @@ function Contact() {
           <StContactBox>
             <StContactName>박현우 님😺
               <StContact>
-                https://github.com/hyun1024
+                <a href='https://github.com/hyun1024'>{'https://github.com/hyun1024'}</a>
               </StContact>
             </StContactName>
           </StContactBox>
@@ -32,7 +32,7 @@ function Contact() {
           <StContactBox>
             <StContactName>김동현 님😺
               <StContact>
-                https://github.com/princeton-d
+              <a href='https://github.com/princeton-d'>{'https://github.com/princeton-d'}</a>
               </StContact>
             </StContactName>
           </StContactBox>
@@ -40,7 +40,7 @@ function Contact() {
           <StContactBox>
             <StContactName>이남규 님😺
               <StContact>
-                https://github.com/tph7897
+                <a href='https://github.com/tph7897'>{'https://github.com/tph7897'}</a>
               </StContact>
             </StContactName>
           </StContactBox>
@@ -48,7 +48,7 @@ function Contact() {
           <StContactBox>
             <StContactName>김나영 님😺
               <StContact>
-                https://github.com/abxl1
+              <a href='https://github.com/abxl1'>{'https://github.com/abxl1'}</a>
               </StContact>
             </StContactName>
           </StContactBox>

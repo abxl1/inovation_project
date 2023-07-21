@@ -105,8 +105,9 @@ const StCardContainor = styled.div`
   margin-top: 100px;
   min-width: 500px;
   display: flex;
+  flex-direction: row;
   flex-wrap: wrap;
-  justify-content: center;
+  /* justify-content: center; */
   align-items: center;
   align-content: center;
 `;

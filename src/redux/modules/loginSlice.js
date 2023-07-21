@@ -1,9 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const storedToken = localStorage.getItem("token"); // 토큰 가져오기
+const storedRole = localStorage.getItem("role");
 
 const initialState = {
-  isLogin: !!storedToken
+  isLogin: !!storedToken,
+  role : storedRole || null,
 };
 
 const isLoginSlice = createSlice({
@@ -15,6 +17,8 @@ const isLoginSlice = createSlice({
     },
     loginOff: (state, action) => {
         state.isLogin = false;
+        localStorage.removeItem("token");
+        localStorage.removeItem("role");
       },
   },
 });

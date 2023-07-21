@@ -1,13 +1,18 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import Header from '../component/Header'
 import { styled } from 'styled-components'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import instance, { getDetailPosts } from '../axios/api'
 import { useQuery, useQueryClient } from 'react-query'
 import { usePostComment } from '../hooks/usePostComment'
+import { useSelector } from 'react-redux'
 
 function Detail() {
   const queryClient = useQueryClient();
+
+  const role = useSelector((state) => state.isLogin.role)
+
+  console.log(role)
 
   
   const param = useParams();
@@ -21,7 +26,15 @@ function Detail() {
   };
 
   const { data, isLoading } = useQuery('detailposts', () => getDetailPosts(param.id)) 
-  
+
+
+  const [isLike, setIsLike] = useState(null);
+
+  useEffect(() => {
+  setIsLike(data.data[0].isLike);
+  }, [data]);
+
+
   const postCommentmutation = usePostComment();
 
 
@@ -37,28 +50,20 @@ function Detail() {
     navigate(-1); // 바로 이전 페이지로 이동, '/main' 등 직접 지정도 당연히 가능
   };
 
-  const [isLike, setIsLike] = useState(data?.data[0].isLike);
-  // const isLike = data?.data[0].isLike
 
-
-
-  const likeToggle = async (id) => {
-    console.log(id)
-    let res = await instance.post(`/api/likes/posts/${id}`)
-
+  const likeToggle = async (id) => { // 좋아요 토글 정보 전송
+    const res = await instance.post(`/api/likes/posts/${id}`)
+    console.log("res", res)
     queryClient.invalidateQueries('detailposts')
     setIsLike(Boolean(data?.data[0].isLike))
-
-    console.log("res",res)
   };
   
   const handleLikeToggle = () => {
     likeToggle(data?.data[0].id)
   }
 
-  const deletePost = async (id) => {
-    let res = await instance.delete(`/api/posts/${id}`)
-    console.log("res",res)
+  const deletePost = async (id) => { // 게시글 삭제 
+    await instance.delete(`/api/posts/${id}`)
 }
 
 
@@ -69,9 +74,8 @@ function Detail() {
 
 
   const deleteComment = async (id) => {
-    let res = await instance.delete(`/api/comments/${id}`)
+    await instance.delete(`/api/comments/${id}`)
     queryClient.invalidateQueries('detailposts')
-    console.log("res",res)
   }
 
 
@@ -87,15 +91,13 @@ function Detail() {
       console.log(err);
     }
   };
-  useEffect(()=>{
-    console.log("data", data)
-    console.log("id", data?.data[0].id)
-  },[data]);
+  
 
   const comments = data?.data[0].comments
+  const storedRole = localStorage.getItem("role");
 
   if(isLoading){
-    return <></>
+    return;
   }
 
   return (
@@ -107,10 +109,20 @@ function Detail() {
             <StImgBox>
             <StImg src={data?.data[0].image} alt='짤'></StImg>
             <StButtonSet>
-              <StLikeButton onClick={handleLikeToggle} liked={(isLike ? 'red' : '#242426')}>{'❤'}</StLikeButton>
-              <StButton onClick={() => handleCopyClipBoard(`http://localhost:3000${location.pathname}`)}>{'☍'}</StButton>
+              <StLikeButton onClick={handleLikeToggle} liked={(isLike ? '#242426' : 'red')}>
+                {`❤ ${data?.data[0].likeCount}`}
+              </StLikeButton>
+              <StButton onClick={() => handleCopyClipBoard(`http://first-serendipity.s3-website.ap-northeast-2.amazonaws.com/${location.pathname}`)}>{'☍'}</StButton>
+              {(storedRole==='NAYOUNG')
+              ?
+              (<>
               <StButton onClick={()=>{navigate('/writing')}}>✎</StButton>
-              <StButton onClick={handleDeletePost}>🗑︎</StButton>
+                <StButton onClick={handleDeletePost}>🗑︎</StButton>
+              </>
+              )
+              : (<></>)
+              }
+              
             </StButtonSet>
             <StContents>{data?.data[0].content}</StContents>
             </StImgBox>
@@ -260,18 +272,13 @@ const StButtonSet = styled.div`
 
 
 const StButton = styled.button`
-  font-size: 30px;
+  font-size: 25px;
   background-color: transparent;
   border: none;
   cursor: pointer;
   outline: none;
   transition: color 0.3s;
   color:#242426;
-  &:hover {
-    ::before {
-      content: '${(props) => props.hoverText}';
-    }
-  }
 `;
 
 const StLikeButton = styled(StButton)`

@@ -15,8 +15,6 @@ instance.interceptors.request.use(
     }
 
     console.log("인터셉트 요청 성공!");
-    console.log(token);
-    console.log(config);
     return config;
   },
   function (error) {
@@ -52,7 +50,12 @@ const addUsers = async (newUser) => {
 
 //  게시글 전체 조회
 const getPosts = async () => {
-    const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}/api/posts`);
+    const response = await instance.get(`/api/posts`);
+    return response.data;
+  }
+// 인기 게시글 전체 조회
+  const getFavoritePosts = async () => {
+    const response = await instance.get(`/api/posts/goodlist`);
     return response.data;
   }
 
@@ -64,7 +67,13 @@ const getDetailPosts = async (id) => {
 
   // 오늘의 추천짤 조회
   const getTodayPosts = async () => {
-    const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}/api/posts/today`);
+    const response = await instance.get(`/api/posts/today`);
+    return response.data;
+  }
+
+   // 오늘의 인기짤 조회
+  const getTodayFavoritePosts = async () => {
+    const response = await instance.get(`/api/posts/good`);
     return response.data;
   }
 
@@ -90,4 +99,4 @@ const getDetailPosts = async (id) => {
 //     await axios.put(`${process.env.REACT_APP_SERVER_URL}/posts/${id}`, updatedData)
 //   }
   
-  export { addUsers, getPosts, getDetailPosts, getTodayPosts }
+  export { addUsers, getPosts, getDetailPosts, getTodayPosts, getFavoritePosts, getTodayFavoritePosts }
