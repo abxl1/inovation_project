@@ -1,0 +1,596 @@
+    ★ 로그인
+    요약하면, 캐시는 웹 페이지를 저장하여 다시 다운로드하지 않고 빠르게 로드하는 데 사용되는 임시 저장소입니다. 
+    쿠키는 사용자의 브라우저에 저장되는 작은 데이터 조각으로, 사용자를 식별하고 사용자의 선호도나 상태 정보를 저장하는 데 사용됩니다.
+
+    토큰을 꺼내서 쿠키에 저장한다!!!!!!!!!알겠냐~~~~~!!!!어린양들아~~~~!!!!!!!
+    
+
+    1. axios 써서 하기 => 근데 우리가 서버 주소를 일일이 다 관리하기가 귀찮단 말이죠 300개가 넘는다 생각하믄...
+    끔찍 그래서 instance 쓰면 편안.ㅎㅎ
+  
+   const [loginId , setLoginId ] = useState('');
+   const [pw, setPw] = useState('');
+
+    const LoginSubmitHandler = async (event) => {
+    event.preventDefault();
+    try {
+      const res = await axios.post("http://3.36.117.155/api/members/login", {
+        ”loginId ” : “admin1”,
+        ”password” : “Qwer1234!”
+      });
+    console.log("로그인 성공");
+        } catch (error) {
+        console.log("로그인 실패");
+        console.log(error.message);
+        }
+    };
+
+      console.log(res); => console찍어서 값이 들어오는지 꼭 확인하기!! 
+      
+      console.log(res.headers.authorization) => accesstoken을 꺼내서 쿠키에 저장!!
+      쿠키는 검사페이지 들어가서 애플리케이션 들어가면 로컬 스토리지 밑에 쿠키 저장소 볼 수 있어요 거기서 accesstoken값 들어오는지 확인해보면 됩니다!!
+
+      // accesstoken을 꺼내서 쿠키에 저장 <- 해야함
+      (순서는 서버 통신에 성공했다는 전제!!!! : 200번대 200, 201, 202 이건 백에서 설정함)
+      document.cookie = `accessToken=${res.headers.accesstoken}; path=/;` // 
+      쿠키설정(생성,수정)하는코드
+
+document.cookie: 웹 페이지에서 현재 사용 중인 브라우저의 쿠키를 나타내는 JavaScript의 특수 변수(객체)입니다.
+
+accessToken=${res.headers.accesstoken}: 쿠키의 내용을 설정합니다. 여기서 res.headers.accesstoken은 res라는 변수의 headers 객체에 있는 accesstoken이라는 속성의 값을 가져와서 쿠키의 값으로 사용하겠다는 뜻입니다.
+${}는 템플릿 리터럴을 사용하여 변수를 쉽게 문자열에 삽입하는 방법입니다.
+
+path=/: 쿠키의 경로를 설정합니다. 이 경우, / 경로에서만 해당 쿠키를 사용할 수 있도록 지정되었습니다. 이 경로 설정을 통해 해당 경로와 그 하위 경로에서 쿠키를 사용할 수 있습니다.
+
+이 코드는 accessToken이라는 이름의 쿠키를 생성하고, 해당 쿠키의 값은 res.headers.accesstoken 변수의 값을 가집니다. 이렇게 생성된 쿠키는 사이트의 모든 페이지에서 사용 가능하며, 경로가 /로 설정되어 있으므로 사이트 전체에서 쿠키에 접근할 수 있습니다.
+
+
+
+      => path : 해당 페이지 모든 페이지 접근할 수 있다는 뜻입니다!(우리가 로그인하면 모든 페이지에 접근을 할 수 있어야겠죠?! 약소쿠라고 생각하믄댐ㅎㅎ)
+
+      
+★ 회원가입
+const createOnclick = async (event) => {
+  if ( pw1 !== pw1* ) {
+		alert('비밀번호가 일치하지 않습니다.');
+  }
+    event.preventDefault();
+    try {
+      const res = await instance.post("/api/user/signup",
+        nickname : ,
+        password:,
+        email:,
+      });
+      console.log(res);
+      document.cookie = `accessToken=${res.headers.accesstoken}; path=/;`;  //물어봅시다 (2)
+    } catch (error) {
+      // setErrorMsg(error.response.data.message);
+    }
+  };
+
+
+
+
+
+
+
+<2>. instance => axios 부분 instance로 바꿔주기!!
+
+1. import 바로 밑에다가 선언해주세요!! 함수 안 return문 위에다가 노우노우~!
+export const instance = axios.create({
+  baseURL: "http://1.244.223.183/",
+});
+
+여기서 baseURL은 은지님과 수지님 백엔드 서버!! 아마 주소 주실거니깐 그걸로 받아서 쓰면됩니당!
+우리가 저 앞부분은 똑같고 뒤에 뭐 로그인 홈페이지나 회원가입 홈페이지 '/' 뒷부분이 달라지니깐 앞에 공통으로 들어가는 
+부분!!을 따로 빼서 관리하면 편하겠둉?? 
+
+
+
+
+<3>. 이 부분은 강의 자료 보면 있어요! 
+우리가 요청을 보낼때랑 응답받을때 어떻게 해야하는지 보여주는 고론 코드!
+
+1) request부분 //물어봅시다(3)
+ instance.interceptors.request.use((config) => {
+  const accessToken =
+    document.cookie &&
+    document.cookie
+      .split(";")
+      .filter((cookies) => cookies.includes("accessToken"))[0] // 필터링 후 첫 번째 요소
+      ?.split("=")[1]; // = 기준으로 분리 후 두 번째 요소를 선택, 
+      ** 옵셔널 체이닝 : (?.) document.cookie가 null or undef 
+                        -> 해당 속성 접근 x, 다음 속성 혹은 메서드를 스킵
+                        => document.cookie가 빈 값이라면 에러 방지, 코드 안정성^
+  return config; // 는 수정된 객체!
+});
+
+2) response부분 => 이 부분은 우리가 아까 axios 쓸 때는 통신 보낼때마다 document.cookie저장소에 저장시켜줘야했는데 이제 그럴필요가 없음!! intercepter로 중간에서 한 번만 처리!!해줌!!
+
+instance.interceptors.response.use((config) => {
+  config.headers.accesstoken &&
+    (document.cookie = `accessToken=${config.headers.accesstoken}; path=/;`);
+  return config;
+});
+const LoginSubmitHandler = async (event) => {
+    event.preventDefault();
+    try {
+      const res = await instance.post("/api/user/login", { 
+        address: "test12345",
+        password: "test12345",
+      });
+      console.log(res); 
+      console.log("로그인 성공");
+      navigate("/MainHomePage");
+    } catch (error) {
+      console.log("로그인 실패");
+      console.log(error.message);
+    }
+  };
+
+
+이렇게 두 개의 방법이 있습니당!! 근데 저도 instance부분은 개념 완전 이해가 어려워서ㅜㅜㅜ이정도로밖에 설명을 못드리겠네요ㅜㅜ
+죄송함돠...ㅎ파이팅...!!
+
+
+
+
+★ 리덕스 
+
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
+export const __postLogin = createAsyncThunk("postLogin", async (payload) => {
+  try {
+    const res = await axios.post("http://1.244.223.183/api/user/login", {
+      address: "test12345",
+      password: "test12345",
+    });
+    document.cookie = `accessToken=${res.headers.AccessToken}; path=/;`;
+    return;
+  } catch (error) {
+    console.log(error.message);
+    return error.message;
+  }
+});
+export const __postRegister = createAsyncThunk(
+  "postRegister",
+  async (payload) => {
+    try {
+      const res = await axios.post("http:/localhost:4000/api/auth/signup", {
+        username: "jung",
+        password: "hwan12345",
+      });
+      document.cookie = `accessToken=${res.headers.AccessToken}`;
+      return;
+    } catch (error) {
+      console.log(error.message);
+      return error.message;
+    }
+  }
+);
+const initialState = {
+  isLoading: false,
+  isError: false,
+  error: null,
+};
+const authorization = createSlice({
+  name: "login",
+  initialState,
+  extraReducers: (builder) => {
+    builder
+      .addCase(__postLogin.pending, (state, action) => {
+        state.isLoading = true;
+        state.isError = false;
+      })
+      .addCase(__postLogin.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+      })
+      .addCase(__postLogin.rejected, (state, action) => { // ~postLogin
+        state.isLoading = false;
+        state.isError = true;
+        state.error = action.payload;
+      })
+      .addCase(__postRegister.pending, (state, action) => {
+        state.isLoading = true;
+        state.isError = false;
+      })
+      .addCase(__postRegister.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+      })
+      .addCase(__postRegister.rejected, (state, action) => { // ~postRegister
+        state.isLoading = false;
+        state.isError = true;
+        state.error = action.payload;
+      });
+  },
+
+
+  /////////////////////////////////////////////////////////////////////
+
+   - 7 / 17 상담 메모 .
+1) 로그인
+쿠키에 담기, 헤더에 담기, 바디에 담기
+쿠키 - 작은 저장소
+쿠키에 토큰을 담는다면,
+담아진 토큰이 브라우저에 왔을 때
+브라우저 자체에 토큰이 씌워짐
+-> 별도의 절차 필요 x
+단점 : 데이터 컨트롤이 불가,
+토큰 필요성의 여부를 따지지 않음 ( 토큰이 필요하지 않아도 토큰이 오감 )
+
+헤더 - 토큰 자체를 추출해옴
+바디 - ``
+
+로컬 스토리지, 세션 스토리지
+-> 브라우저의 저장소 - 임시로 저장해 둠
+
+** 인터셉터 - 스토리지에 토큰이 있는지 여부
+여부에 따른 토큰 작업
+true라면 담아서 보냄
+false라면  ~
+
+=> 토큰 : "놀이공원 입장권"
+있다면, 어느 놀이기구든 탑승 가능!
+
+
+서버가 우리에게 토큰을 줌
+-> 어딘가에 저장해야 함(로컬 or 세션)
+-> 이것들은 인터넷 창의 저장소임!
+-> getItem() 등을 사용해 토큰을 꺼내고
+담아서 사용!
+
+로컬과 세션의 차이:
+로컬 - setItem 사용,
+토큰 요청을 날리지 않으면 계속 작성 필요!
+세션 - 여러 창 중 하나에만 로그인하고
+그 창을 닫았을 때 모두 토큰이 날아감!
+
+로컬스토리지.setItem(A, B)
+로컬스토리지.getItem(A, B)
+
+서버가 : 리퀘스트에 요청을 담아 보낼 때
+헤더 / 바디 등에 담아서 보내라는 요청을 받음
+
+2) 이미지를 담은 post 요청
+
+formData형식 사용 필요!
+
+게시물 미리보기 ㅏ...
+코드 검색 go!
+리덕스를 사용해서 댓글 실시간 업데이트!
+
+////////////////////////////////////////////////////////////////////////////////
+
+// 나영 
+
+1) 메인 페이지 하단 인기 짤, 최신 짤 title 넣기, 썸네일 넣기
+2) 마이페이지 최근 조회 게시글, 최근 작성 댓글, 좋아요한 게시글 div css
+3) 인기글 썸네일, 좋아요 개수, 상세페이지 좋아요 개수
+4) 헤더 div 정렬
+5) **(추후) 콘택트, 히스토리 Css
+6) 
+
+
+
+
+/////////////////////////////////////////////////////////
+
+import axios from 'axios';
+
+
+// 조회
+const getTodos = async () => {
+  const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}/todos`);
+  return response.data;
+}
+
+// 추가
+const addTodos = async (newTodo) => {
+  await axios.post(`${process.env.REACT_APP_SERVER_URL}/todos`, newTodo);
+}
+
+// 삭제
+const deleteTodos = async (id) => {
+  await axios.delete(`${process.env.REACT_APP_SERVER_URL}/todos/${id}`);
+}
+
+// 수정
+const modifyTodos = async (data) => {
+  const { id, ...updatedData } = data;
+  await axios.put(`${process.env.REACT_APP_SERVER_URL}/todos/${id}`, updatedData)
+}
+
+
+
+{
+id: 1,
+title: "글 제목",
+content: "내용",
+image: "",
+createdAt: "2023-07-18T01:22:03.013054",
+modifiedAt: null,
+isLike: false,
+comments: [{
+“nickname” : “닌닌”,
+“content” : “내용”
+},
+{
+“nickname” : “닌닌”,
+“content” : “내용”
+},
+{
+“nickname” : “닌닌”,
+“content” : “내용”
+},
+{
+“nickname” : “닌닌”,
+“content” : “내용”
+},
+{
+“nickname” : “닌닌”,
+“content” : “내용”
+},
+{
+“nickname” : “닌닌”,
+“content” : “내용”
+},
+{
+“nickname” : “닌닌”,
+“content” : “내용”
+},
+{
+“nickname” : “닌닌”,
+“content” : “내용”
+},
+]
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+
+// 요청 인터셉터 추가하기
+axios.interceptors.request.use(function (config) {
+    // 요청이 전달되기 전에 작업 수행
+    return config;
+  }, function (error) {
+    // 요청 오류가 있는 작업 수행
+    return Promise.reject(error);
+  });
+
+// 응답 인터셉터 추가하기
+axios.interceptors.response.use(function (response) {
+    // 2xx 범위에 있는 상태 코드는 이 함수를 트리거 합니다.
+    // 응답 데이터가 있는 작업 수행
+    return response;
+  }, function (error) {
+    // 2xx 외의 범위에 있는 상태 코드는 이 함수를 트리거 합니다.
+    // 응답 오류가 있는 작업 수행
+    return Promise.reject(error);
+  });
+
+
+  //////////////////////////////////////////////////////
+  if (nickname.trim() === "" && password.trim() === "") {
+alert("닉네임과 비밀번호를 입력해주세요.");
+} else if (!email) {
+alert("email을 입력해주세요.");
+} else if (!nickname) {
+alert("nickname을 입력해주세요.");
+} else if (!password) {
+alert("password를 입력해주세요.");
+} else if (password !== password2) {
+alert("password를 동일하게 입력해주세요.");
+} else if (!isEmail(email)) {
+alert("이메일을 올바르게 입력해주세요.");
+} else if (!isPassword(password)) {
+alert("패스워드는 8~16자, 영문,숫자,특수문자 조합으로 입력해주세요.");
+} else if (!isNickname(nickname)) {
+alert("아이디는 5~12자, 영문자 또는 숫자로 입력해주세요.");
+} else {
+postSignUpMutaion.mutate({ nickname, password, email });
+}
+------------
+//이메일 체크
+export const isEmail = (asValue) => {
+const regExp = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/;
+
+return regExp.test(asValue); // 형식에 맞는 경우 true 리턴
+};
+//비밀번호 체크 : 8~16자 영문,숫자,특수문자 조합
+export const isPassword = (asValue) => {
+const regExp = /^(?=.*[A-Za-z])(?=.*[~!@#$%^&*()+|=])[A-Za-z\d~!@#$%^&*()+|=]{8,21}$/im;
+return regExp.test(asValue); // 형식에 맞는 경우 true 리턴
+};
+//닉네임 체크 : 5~12글자 영문자 또는 숫자
+const isNickname = (asValue) => {
+const regExp = /^[a-z]+[a-z0-9]{5,12}$/g;
+
+return regExp.test(asValue); // 형식에 맞는 경우 true 리턴
+};
+
+
+
+
+////////////////////////////////////////////////////////////////////////////
+
+1) thunk - 미들웨어.
+
+미들웨어란 : 객체가 아닌 함수를 담아 전달 가능하게.
+디스패치의 행동에 제어를 줌.
+직접적으로 제어를 준다기보다는
+디스패치의 행동 이전의 단계의 역할.
+
+비동기 작업에 thunk를 사용하곤 함.
+
+2) state를 만든다고 가정하면, 수천 개가 넘게 됨.
+local의 영역에서는 복잡하고 어려움.
+
+서버 통신하려면 리덕스를 써야 해! (x)
+
+사용하는 data의 필요성에 따른 영역 넓히기 여부.
+다수의 컴포넌트에서 사용한다면 리덕스 사용,
+소수의 컴포넌트에서 사용한다면 useState() 사용!
+
+-> 서버와 통신하게 된다면,
+글로벌 스테이트에서 사용해야 할 것은 리덕스로 전역 관리
+
+
+3) 일반적인 회사에서는 툴킷 99.9% 사용 예상.
+툴킷 API에 익숙해질 것!
+
+프레임워크 - 규칙을 따라야 함
+:( 강제성을 가지고, 기능이 많음)
+라이브러리 - 코드를 갖다붙여 쓰는 것
+
+
+4) 쿼리. Query. RTK나 react-query나 비슷함
+리액트 쿼리는 서버 스테이트 매니지먼트. 서버 상태 관리!
+리덕스는 클라이언트 상태 관리인데? ㅓ?
+
+리액트 쿼리의 목적:
+데이터베이스의 데이터, 화면 상의 데이터 일치
+-> 리액트 개발자가 책임질 것
+로컬, 글로벌의 데이터뿐만 아니라 서버까지 고려!
+
+
+** 로그인 상태!! 전역 상태에서 존재해야 함!! **
+
+*** useContext,...!!!!!! ***
+: 명시적으로 prop을 전달하지 않고도 
+컨텍스트의 값을 사용할 수 있다!
+
+리덕스는 store가 무적권 1개만 있음!
+컨텍스트는 만들 때마다 생김~
+마치 컨텍스트 안의 컴포넌트들이 형제 관계처럼!
+
+놀랍게도 리액트 기본 기능임... ... ...
+놀랍게도 요소가 여러 개라도
+전부 독립적으로 움직임... ... ...
+** Children react API 참고하기
+-> 분기 처리 가능!
+react createElement API
+
+-----------
+충격적 사실...
+컴포넌트의 return 부분에서
+로직이 보이는 것은 복잡해 보임...
+결국, 명령적 -> 선언적으로 노력!
+식이 보이지 않게 구현하기~
+
+useState()의 상위호환 useReducer?
+적절한 구조에 맞게 바꿔서 사용할 것!
+
+뷰와 로직을 구분하기, 어떻게?
+커스텀 훅으로!
+
+구조분해할당... 이걸 모르면 않되
+무적권 알고있어야되,!!!!!!!!!!!!!!
+모르면 ES6를 이해를 못 한 것임
+
+https://react-ko.dev/ // FE재남님의 all 번역 react 공부 사이트 S2
+https://tkdodo.eu/blog/react-query-and-forms // 이건잘모르겟어요 들어가서 알아서 보시길 ㅎㅎ 잘못들엇음
+https://velog.io/@sebinn/GitHub-%EC%88%98%EC%A0%95%EB%90%9C-%ED%8C%8C%EC%9D%BC-%EC%98%AC%EB%A6%AC%EA%B8%B0%ED%8C%8C%EC%9D%BC-%EC%97%85%EB%8D%B0%EC%9D%B4%ED%8A%B8
+
+저희 알록짤록이는요?
+
+이 프로젝트는 짤(재미있는 이미지나 동영상)을 모아 관리할 수 있는 웹 애플리케이션입니다.
+
+
+프로젝트를 시작하게 된 동기는 알록짤록 프로젝트의 팀장님이신 김나영님의 블로그 안의 많은 짤들을 보면서 많은 사람들이 인터넷 커뮤니케이션에서 짤을 즐겨 사용하지만 짤을 하나하나 수집하는 것이 번거롭지 않을까 생각이 들었습니다. 이를 해소하고자, 짤을 모아둔 웹 서비스가 있으면 좋겠다는 아이디어를 가지고 알록짤록 프로젝트를 기획하게 되었습니다.
+
+
+알록짤록은 관리자인 나영님이 짤을 업로드하면 다른 사람들은 쉽게 많은 짤들을 확인하고, 이를 사용할 수 있는 플랫폼을 제공합니다. 랜덤으로 추천해주는 추천짤 시스템과 좋아요 수를 기준으로 한 인기짤 조회 시스템을 통해 사용자들이 다양한 짤들을 쉽게 찾아 볼 수 있게 하였습니다.
+
+뿐만아니라, 저희 알록짤록은 댓글기능이 포함되어 사용자들이 웃기고 귀여운 짤을 보면서 함께 즐길 수 있는 커뮤니케이션을 지원합니다. 댓글을 통해 다른 사람들과 다양한 반응을 공유하고 함께 재미있는 이야기를 나누며 즐거운 시간을 보낼 수 있습니다.
+
+저희 알록짤록을 이용하시는 모든 분들이 함께 웃고 즐기며, 짤을 모으고 활용하는 데에 불편함을 해소하고, 더 즐겁고 편리한 짤 사용 경험을 제공하는 것을 목표로 하고 있습니다. 감사합니다!
+
+/////////////
+
+하고 싶었던 기능!
+1) 
+새로고침하면 눌렀던 하트가 검정색이 된다.
+이런...
+1-1) 우리가 원했던 상태 :
+게시글 첫 방문: black, 누르기 전 count
+게시글 첫 좋아요 : red, 처음 count + 1
+좋아요를 해제(다시 누르기)하면 black, 누르기 전 count
+해제 후 새로고침 -> black, 누르기 전 count
+누른 후 새로고침 -> red, count + 1
+
+2) 최근 내역 조회
+최근 댓글 / 최근 방문 게시글 + 좋아요한 게시글 리스트
+
+3) 말머리 카테고리
+전체 게시글 페이지에서 게시글의 제목 왼쪽에
+'[말머리]제목' 형태로 구현하고 싶었어요... 
+그런데 서버에서 말머리는 차마 인지하지 못했음
+했어도 구현 못 했을 듯
+
+4) 오시는 길 링크 첨부 -> 링크 접속 x
+
+///////
+
+
+// 트러블 슈팅
+문제 1) 상세페이지에서 ID 추출 중에 console창의 queryFn
+->  useQuery(['posts', param.id], () => getDetailPosts(param.id));
+
+문제 2) 상세페이지 console에서 data가 undefined로 찍힘
+-> 옵셔널 체이닝으로 data 출력을 시도했으나 해결되지 않음
+-> 유사한 && 방식 사용으로 해결함
+-> console이 아닌 태그 안에서 옵셔널 체이닝을 사용해서 해결
+
+**문제 3) 메인에서 특정 게시글을 미리보기로 보이게 하는 과정
+-> 서버에서 의도한 것이 아닌 이미지 변화
+-> 쿼리 특징 : 댓글 작성을 예시로 들었을 때 즉시 렌더링되는 장점
+=> 장점으로 사용이 되어야 하는데 조작 없이 스스로 이미지가 변경됨
+
+**문제 4) 헤더에 토큰을 담는 작업의 번거로움을 줄이기 위한 
+인터셉터 생성과 사용 중 헤더에 토큰이 담아지지 않는 불상사...
+-> 엑시오스 인터셉터를 이용해 토큰을 담아 사용하다가
+인스턴스 인터셉터로 변경하니 토큰이 담아지지 않는 오류가 뜸.
+=> 
+
+문제 5) 새 댓글을 추가했을 때 닉네임, 컨텐츠 부분이 undefined로
+추가됨. 이후 리렌더링 시에(새로고침했을 때) 그때 올바른 데이터로 나옴.
+=>
+
+**문제 6) 커스텀 훅을 생성하여 상세페이지 조회(Get 요청)할 시에, 400 err와 401 err를 마주함...
+-> 400 : 클라이언트에서 서버로 "잘못된 요청"
+-> 401 :  
+-> comment의 값이 없는 상태로 커스텀 훅이 자동으로 실행됐음.
+
+
+문제 7) 댓글 작성 버튼 누른 후, 작성된 댓글이 post 요청으로 전송되고
+응답도 온 것 같지만 렌더링되지 않아 새로고침해야 나옴.
+(+ 콘솔 창을 한 번 누르고 댓글을 누르면 리렌더링인지 그때는 잘 나옴)
+-> useQueryClient()를 사용해서 해결함
+
+:: useQuery() : 데이터를 비동기적으로 가져오는데 사용되는 훅입니다. 
+주로 API 요청을 처리하고 서버로부터 데이터를 가져올 때 사용됩니다.
+:: useQueryClient() : 캐시된 데이터를 관리하고, 서버 요청을 처리하며, 
+데이터를 업데이트하는 역할을 합니다.
+
+
+문제 8) 좋아요 버튼 누른 후, isLike true/false 여부가 post요청을 보내고
+get 요청으로 isLike 상태를 받은 뒤 console에 isLike가 false로만 출력됨
+-> axios 요청과 instance 요청의 차이가 있었음,
+post 요청과 get 요청 전부 유저 정보가 필요하다면 instance로 변경하여 요청
+
+
+개발을 진행하면서 어려웠던점, 해결한 내용들
+
+1. 댓글 구현 = 댓글을 작성하면 밑으로 바로 나오게 하는 부분 QueryClient에 대한 이해가 부족했었음
+2. 로그인하여 받아온 토큰을 로컬 스토리지에 저장하는 부분 + 로그인 상태로 서버에 요청을 보낼때 마다 
+토큰을 담아서 보내는 것을 인터셉터를 이용해서 해결
+3. 좋아요 버튼 구현 = 상세페이지의 좋아요 버튼을 서버와 통신하여 값을 받아오는 것을 만들었으나 새로고침 하였을때 
+서버의 값을 받아오기 전에 usestate로 지정해놓은 좋아요 버튼의 색상이 이리 정해지는 문제 - 아직 해결하지 못함
+4. 
+
+하고 싶었던 기능들
+최근 내역 조회
+최근 댓글 / 최근 방문 게시글 + 좋아요한 게시글 리스트
+말머리 카테고리

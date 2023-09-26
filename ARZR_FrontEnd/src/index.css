@@ -1,0 +1,35 @@
+@font-face {
+  font-family: 'Ramche';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2307-1@1.1/Ramche.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+/* @import url('https://cdn.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css'); */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color:#242426;
+  font-family: 'Ramche';
+  color: #FFCE50;
+  }
+
+  ol,
+  ul,
+  li {
+  list-style: none;
+  }
+
+  input {
+  border: none;
+  outline: none;
+  }
+  
+  button {
+  border: none;
+  background: transparent;
+  }
+
+  ::placeholder { /* Most modern browsers */
+    font-size: 18px;
+}
